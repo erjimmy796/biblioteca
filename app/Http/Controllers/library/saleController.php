@@ -17,10 +17,10 @@ class saleController extends Controller
      */
     public function index()
     {
-        $saleMode = new saleModel();
-        $result = saleModel::paginate(5);
+        $saleModel = new saleModel();
+        $result = $saleModel::paginate(5);
         $response = array(
-            "data"          =>  (empty($result->items()) ? null : [ $result->items() ]),
+            "data"          =>  (empty($result->items()) ? null : $result->items()),
             "message"       =>  null,
             "error"         =>  null,
             "pagination"    =>  [
@@ -70,13 +70,18 @@ class saleController extends Controller
             $error = 2;
         }
         $bookResult = $booksModel::where ( 'id' , '=' , $request->idLibro )->get();
-        if($bookResult->inventory < $request->items){
+        if($bookResult[0]->inventory < $request->items){
             $error = 3;
             $message = 'Items insuficientes para la venta';
         }
         if($error == 0){
-            $saleModel->idLbro      = $request->idLibro;
-            $saleModel->price       = $bookResult->price;
+            $inventory = $bookResult[0]->inventory - $request->items;
+            $booksModel->where('id', $request->idLibro)
+                ->update([
+                    'inventory'  => $inventory
+                ]);
+            $saleModel->idLibro      = $request->idLibro;
+            $saleModel->price       = $bookResult[0]->price;
             $saleModel->units       = $request->items;
             try{
                 $saleModel->save();
@@ -102,7 +107,29 @@ class saleController extends Controller
      */
     public function show($id)
     {
-        //
+        $booksModel = new booksModel();
+        $saleModel = new saleModel();
+        $result = $saleModel::where("idLibro","=",$id)->all();
+        dd($result);
+        $response = array(
+            "data"          =>  (empty($result->items()) ? null : $result->items()),
+            "message"       =>  null,
+            "error"         =>  null,
+            "pagination"    =>  [
+                "total"         =>  $result->total(),
+                "perPage"       =>  $result->perPage(),
+                "currentPage"   =>  $result->currentPage(),
+                "lastPage"      =>  $result->lastPage(),
+                "path"          =>  $result->resolveCurrentPath(),
+                "query"         =>  [
+                    "page"      =>  $result->currentPage(),
+                    "perPage"   =>  $result->perPage()
+                ],
+                "pageName"      =>  "page"
+            ]
+        );
+        return json_encode($response);
+
     }
 
     /**

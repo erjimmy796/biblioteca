@@ -11,6 +11,5 @@ class saleModel extends Model
     protected $connection = 'mysql';
     protected $table = 'sale';
     protected $primaryKey = 'id';
-    protected $relations = 'idBooks';
     protected $dates = ['updated_at','created_at','deleted_at'];
 }

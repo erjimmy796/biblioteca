@@ -4,7 +4,6 @@ namespace App\Http\Controllers\library;
 
 use App\models\booksModel;
 use Illuminate\Http\Request;
-
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
 
@@ -20,10 +19,7 @@ class booksController extends Controller
         $booksModel = new booksModel();
         $result = $booksModel::paginate(5);
         $response = array(
-            "data"          =>  [
-                $result->items()
-            ],
-            "data"          =>  (empty($result->items()) ? null : [ $result->items() ]),
+            "data"          =>  (empty($result->items()) ? null : $result->items() ),
             "message"       =>  null,
             "error"         =>  null,
             "pagination"    =>  [
