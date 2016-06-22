@@ -15,10 +15,11 @@ class saleController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
+        $perPage = ($request->perPage ? $request->perPage : env('PERPAGE_DEV'));
         $saleModel = new saleModel();
-        $result = $saleModel::paginate(5);
+        $result = $saleModel::paginate($perPage);
         $response = array(
             "data"          =>  (empty($result->items()) ? null : $result->items()),
             "message"       =>  null,
@@ -105,16 +106,16 @@ class saleController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    public function show($id, Request $request)
     {
         $booksModel = new booksModel();
         $saleModel = new saleModel();
-        $result = $saleModel::where("idLibro","=",$id)->all();
-        dd($result);
+        $perPage = ($request->perPage ? $request->perPage : env('PERPAGE_DEV'));
+        $result = $saleModel::where("idLibro","=",$id)->paginate($perPage);
         $response = array(
             "data"          =>  (empty($result->items()) ? null : $result->items()),
-            "message"       =>  null,
-            "error"         =>  null,
+            "message"       =>  (empty($result->items()) ? 'No hay ventas registradas para este libro' : null),
+            "error"         =>  (empty($result->items()) ? '1' : null),
             "pagination"    =>  [
                 "total"         =>  $result->total(),
                 "perPage"       =>  $result->perPage(),

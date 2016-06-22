@@ -14,10 +14,11 @@ class booksController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
+        $perPage = ($request->perPage ? $request->perPage : env('PERPAGE_DEV'));
         $booksModel = new booksModel();
-        $result = $booksModel::paginate(5);
+        $result = $booksModel::paginate($perPage);
         $response = array(
             "data"          =>  (empty($result->items()) ? null : $result->items() ),
             "message"       =>  null,
@@ -145,7 +146,6 @@ class booksController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $booksModel = new booksModel();
         /*
          *  error = 2, precio null o 0
          *  error = 3, error de insersion
